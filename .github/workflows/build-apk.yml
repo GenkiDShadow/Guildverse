@@ -1,0 +1,37 @@
+name: Build GuildVerse APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Télécharger le projet
+        uses: actions/checkout@v4
+
+      - name: Installer les dépendances
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            git zip unzip openjdk-17-jdk \
+            python3-pip autoconf automake libtool pkg-config \
+            zlib1g-dev libncurses5-dev libncursesw5-dev \
+            cmake libffi-dev libssl-dev
+
+      - name: Installer Buildozer
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install buildozer "Cython<3"
+
+      - name: Construire l'APK
+        run: buildozer -v android debug
+
+      - name: Récupérer l'APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: GuildVerse-APK
+          path: bin/*.apk
